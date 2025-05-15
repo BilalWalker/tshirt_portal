@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ design.title }} - T-Shirt Design Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <img src="{{ design.image.url }}" alt="{{ design.title }}" class="img-fluid mb-4 border">
+    </div>
+    <div class="col-md-6">
+        <h1>{{ design.title }}</h1>
+        <p>
+            <span class="badge {% if design.status == 'PUBLISHED' %}bg-success{% else %}bg-secondary{% endif %} mb-2">
+                {{ design.get_status_display }}
+            </span>
+        </p>
+        
+        {% if design.description %}
+            <h5>Description:</h5>
+            <p>{{ design.description }}</p>
+        {% endif %}
+        
+        <p><strong>Created by:</strong> {{ design.creator.username }}</p>
+        <p><strong>Created:</strong> {{ design.created_at|date:"F d, Y" }}</p>
+        <p><strong>Last updated:</strong> {{ design.updated_at|date:"F d, Y" }}</p>
+        
+        {% if design.status == 'PUBLISHED' %}
+            <div class="alert alert-success">
+                <p><strong>Shopify Product ID:</strong> {{ design.shopify_product_id }}</p>
+                <p class="mb-0"><strong>Product URL:</strong> <a href="{{ design.shopify_product_url }}" target="_blank">{{ design.shopify_product_url }}</a></p>
+            </div>
+        {% endif %}
+        
+        <div class="d-flex gap-2 mt-4">
+            <a href="{% url 'design_edit' design.pk %}" class="btn btn-primary">Edit Design</a>
+            
+            {% if design.status == 'DRAFT' %}
+                <a href="{% url 'design_publish' design.pk %}" class="btn btn-success">Publish to Shopify</a>
+            {% else %}
+                <a href="{% url 'design_unpublish' design.pk %}" class="btn btn-warning">Unpublish from Shopify</a>
+            {% endif %}
+            
+            <a href="{% url 'design_list' %}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
