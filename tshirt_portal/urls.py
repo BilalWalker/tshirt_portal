@@ -26,6 +26,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),    
     path('designs/', include('designs.urls')),
     path('users/', include('users.urls')),
+    path('accounts/profile/', TemplateView.as_view(template_name='account/profile.html'), name='account_profile'),
 ]
 
 # if settings.DEBUG:

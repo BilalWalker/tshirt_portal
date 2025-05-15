@@ -9,7 +9,7 @@ class DesignStatus(models.TextChoices):
 class Design(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='designs/')
+    image = models.ImageField(upload_to='static/')
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

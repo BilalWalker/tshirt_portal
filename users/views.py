@@ -26,7 +26,7 @@ def add_team_member(request):
             user = form.save(commit=False)
             # Generate a random password and set it
             # password = CustomUser.objects.make_random_password()
-            # user.set_password(password)
+            user.set_password(user.password)
             user.save()
             # TODO: Send email with temporary password
             return redirect('team_members')
