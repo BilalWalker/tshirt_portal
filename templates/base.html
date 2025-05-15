@@ -36,17 +36,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link" href="{% url 'design_list' %}">My Designs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'order_list' %}">Orders</a>
-                        </li>
-                        {% if user.is_admin %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'team_members' %}">Team</a>
-                            </li> -->
-                        {% endif %}
+                        
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto">
@@ -58,7 +48,6 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <!-- <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li> -->
                             </ul>
                         </li>
                     
