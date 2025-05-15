@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - T-Shirt Design Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">My Designs</h5>
+            </div>
+            <div class="card-body">
+                <p>Manage your T-shirt designs, create new ones, or publish to Shopify.</p>
+                <a href="{% url 'design_list' %}" class="btn btn-primary">View My Designs</a>
+                <a href="{% url 'design_create' %}" class="btn btn-outline-primary">Create New Design</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">Orders</h5>
+            </div>
+            <div class="card-body">
+                <p>View and manage orders for your published T-shirt designs.</p>
+                <a href="{% url 'order_list' %}" class="btn btn-success">View Orders</a>
+                
+                {% if user.is_admin %}
+                <a href="{% url 'sync_orders' %}" class="btn btn-outline-success">Sync Orders from Shopify</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_admin %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Admin Tools</h5>
+            </div>
+            <div class="card-body">
+                <p>Manage team members and access admin-only features.</p>
+                <a href="{% url 'team_members' %}" class="btn btn-info">Manage Team</a>
+                <a href="{% url 'add_team_member' %}" class="btn btn-outline-info">Add Team Member</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
