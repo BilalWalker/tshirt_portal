@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # 'crispy_bootstrap5',
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
 
     #Local apps
     'users.apps.UsersConfig',
