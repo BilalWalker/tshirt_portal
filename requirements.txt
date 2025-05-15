@@ -1,0 +1,7 @@
+Django==4.2.10
+django-crispy-forms==2.0
+Pillow==10.0.0
+ShopifyAPI==12.3.0
+python-dotenv==1.0.0
+django-allauth==0.55.0
+requests==2.31.0
