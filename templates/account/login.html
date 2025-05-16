@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Log In - T-Shirt Design Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 2rem auto;
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-header h1 {
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .login-header p {
+        color: #6c757d;
+    }
+    
+    .login-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+    
+    .login-card .card-header {
+        background: linear-gradient(135deg, #4a6bff 0%, #2743aa 100%);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+    }
+    
+    .login-card .card-body {
+        padding: 2rem;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #4a6bff 0%, #2743aa 100%);
+        border: none;
+        border-radius: 5px;
+        padding: 0.7rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .login-footer a {
+        color: #4a6bff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .login-footer a:hover {
+        color: #2743aa;
+        text-decoration: underline;
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+    }
+    
+    .divider-line {
+        flex-grow: 1;
+        height: 1px;
+        background-color: #e9ecef;
+    }
+    
+    .divider-text {
+        padding: 0 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <h1>Welcome Back</h1>
+        <p>Log in to manage your T-shirt designs and orders</p>
+    </div>
+    
+    <div class="card login-card">
+        <div class="card-header">
+            <h5 class="card-title mb-0 text-center">Sign In</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                        <label class="form-check-label" for="remember">Remember me</label>
+                    </div>
+                    <a href="{% url 'account_reset_password' %}" class="small">Forgot password?</a>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-login">Log In</button>
+                </div>
+                
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+            
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">OR</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <div class="login-footer">
+                <p>Don't have an account? <a href="{% url 'account_signup' %}">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4 text-center">
+        <p class="small text-muted">By logging in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+    </div>
+</div>
+{% endblock %}

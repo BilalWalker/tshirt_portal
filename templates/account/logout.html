@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Log Out - T-Shirt Design Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .logout-container {
+        max-width: 450px;
+        margin: 2rem auto;
+    }
+    
+    .logout-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .logout-header h1 {
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .logout-header p {
+        color: #6c757d;
+    }
+    
+    .logout-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+    
+    .logout-card .card-header {
+        background: linear-gradient(135deg, #4a6bff 0%, #2743aa 100%);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+    }
+    
+    .logout-card .card-body {
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .logout-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-logout {
+        background: linear-gradient(135deg, #ff4a4a 0%, #aa2727 100%);
+        border: none;
+        border-radius: 5px;
+        padding: 0.7rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-logout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-cancel {
+        background: transparent;
+        border: 1px solid #6c757d;
+        color: #6c757d;
+        border-radius: 5px;
+        padding: 0.7rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+    }
+    
+    .logout-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .logout-footer a {
+        color: #4a6bff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .logout-footer a:hover {
+        color: #2743aa;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="logout-container">
+    <div class="logout-header">
+        <h1>Log Out</h1>
+        <p>We're sorry to see you go</p>
+    </div>
+    
+    <div class="card logout-card">
+        <div class="card-header">
+            <h5 class="card-title mb-0 text-center">Confirm Logout</h5>
+        </div>
+        <div class="card-body">
+            <div class="logout-icon">
+                <i class="bi bi-box-arrow-right"></i>
+            </div>
+            
+            <h3 class="mb-4">Are you sure you want to log out?</h3>
+            <p class="mb-4 text-muted">You will be logged out of your account and redirected to the login page.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger btn-logout">Yes, Log Out</button>
+                    <a href="{% url 'home' %}" class="btn btn-cancel">No, Go Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="logout-footer mt-4">
+        <p class="text-muted">Thank you for using the T-Shirt Design Portal</p>
+    </div>
+</div>
+{% endblock %}
