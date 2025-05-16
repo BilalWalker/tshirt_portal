@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,6 +26,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-d)+uy_@#u_^8t0#n&vk+2fjl+xb**ljputy4q$(b92xd*i(o)y'
+
+# Shopify API settings
+SHOPIFY_API_KEY = os.getenv('SHOPIFY_API_KEY')
+SHOPIFY_API_SECRET = os.getenv('SHOPIFY_API_SECRET')
+SHOPIFY_SHOP_NAME = os.getenv('SHOPIFY_SHOP_NAME')
+SHOPIFY_API_VERSION = os.getenv('SHOPIFY_API_VERSION')  # Use the latest stable version
+print('setingssss', SHOPIFY_API_KEY, SHOPIFY_API_SECRET, SHOPIFY_SHOP_NAME, SHOPIFY_API_VERSION)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -44,6 +55,7 @@ INSTALLED_APPS = [
     #Third party apps
     'crispy_forms',
     "crispy_bootstrap4",
+    "shopify",
 
     # 'crispy_bootstrap5',
     'allauth',

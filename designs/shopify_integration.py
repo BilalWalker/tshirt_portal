@@ -7,7 +7,9 @@ import io
 import requests
 
 def initialize_shopify_session():
+
     shop_url = f"https://{settings.SHOPIFY_API_KEY}:{settings.SHOPIFY_API_SECRET}@{settings.SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/{settings.SHOPIFY_API_VERSION}"
+    print(shop_url)
     shopify.ShopifyResource.set_site(shop_url)
     return True
 
