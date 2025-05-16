@@ -20,6 +20,7 @@ def initialize_shopify_session():
         # Initialize the session directly using the private app credentials
         session = shopify.Session(f"{shop_name}.myshopify.com", api_version, password)
         shopify.ShopifyResource.activate_session(session)
+        print('session', session)
         
         # Test the session
         shop = shopify.Shop.current()

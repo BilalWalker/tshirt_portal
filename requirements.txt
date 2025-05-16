@@ -6,3 +6,6 @@ python-dotenv==1.0.0
 django-allauth==0.55.0
 requests==2.31.0
 crispy-bootstrap4
+gql==3.4.0
+requests==2.31.0
+requests_toolbelt

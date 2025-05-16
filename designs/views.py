@@ -10,6 +10,25 @@ from .models import Design, DesignStatus
 from .forms import DesignForm
 from .shopify_integration import publish_to_shopify, unpublish_from_shopify
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from .models import Design, DesignStatus
+from .forms import DesignForm
+
+# Import both integration modules to give options
+from .shopify_integration import publish_to_shopify, unpublish_from_shopify
+from .shopify_graphql import publish_product as publish_to_shopify_graphql
+from .shopify_graphql import unpublish_product as unpublish_from_shopify_graphql
+from .shopify_graphql import test_connection as test_graphql_connection
+
+# Use the REST API by default
+USE_GRAPHQL_API = True  # Set to True to use GraphQL API instead of REST
+
+
 class DesignListView(LoginRequiredMixin, ListView):
     model = Design
     template_name = 'designs/list.html'
@@ -52,9 +71,26 @@ class DesignUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('design_detail', kwargs={'pk': self.object.pk})
 
+
+
+@login_required
+def test_shopify_api(request):
+    """Test the Shopify API connection and show the results"""
+    if USE_GRAPHQL_API:
+        success, message = test_graphql_connection()
+    else:
+        from .shopify_integration import test_shopify_connection
+        success, message = test_shopify_connection()
+    
+    if success:
+        messages.success(request, message)
+    else:
+        messages.error(request, message)
+    
+    return redirect('dashboard')
+
 @login_required
 def publish_design(request, pk):
-    # return HttpResponse("Publish design functionality is not implemented yet.")
     design = get_object_or_404(Design, pk=pk)
     
     # Check permission
@@ -67,8 +103,11 @@ def publish_design(request, pk):
         messages.info(request, "This design is already published to Shopify.")
         return redirect('design_detail', pk=pk)
     
-    # Publish to Shopify
-    success, product_id, product_url = publish_to_shopify(design)
+    # Publish to Shopify using selected API
+    if USE_GRAPHQL_API:
+        success, product_id, product_url = publish_to_shopify_graphql(design)
+    else:
+        success, product_id, product_url = publish_to_shopify(design)
     
     if success:
         design.status = DesignStatus.PUBLISHED
@@ -83,7 +122,6 @@ def publish_design(request, pk):
 
 @login_required
 def unpublish_design(request, pk):
-    # return HttpResponse("Unpublish design functionality is not implemented yet.")
     design = get_object_or_404(Design, pk=pk)
     
     # Check permission
@@ -96,8 +134,11 @@ def unpublish_design(request, pk):
         messages.info(request, "This design is not published.")
         return redirect('design_detail', pk=pk)
     
-    # Unpublish from Shopify
-    success = unpublish_from_shopify(design.shopify_product_id)
+    # Unpublish from Shopify using selected API
+    if USE_GRAPHQL_API:
+        success = unpublish_from_shopify_graphql(design.shopify_product_id)
+    else:
+        success = unpublish_from_shopify(design.shopify_product_id)
     
     if success:
         design.status = DesignStatus.DRAFT
