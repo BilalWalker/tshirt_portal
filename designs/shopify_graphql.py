@@ -369,3 +369,144 @@ def get_recent_orders(limit=10):
     except Exception as e:
         logger.error(f"Error getting orders via GraphQL: {str(e)}")
         return []
+    
+
+def sync_orders_from_shopify():
+    """
+    Fetch orders from Shopify using GraphQL
+    Returns a list of orders in a format compatible with the existing view
+    """
+    try:
+        client = get_graphql_client()
+        
+        # Query for recent orders with displayFulfillmentStatus instead of fulfillmentStatus
+        query = gql('''
+        query getOrders($first: Int!) {
+          orders(first: $first, sortKey: CREATED_AT, reverse: true) {
+            edges {
+              node {
+                id
+                name
+                createdAt
+                displayFulfillmentStatus
+                displayFinancialStatus
+                totalPriceSet {
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
+                customer {
+                  firstName
+                  lastName
+                  email
+                }
+                lineItems(first: 50) {
+                  edges {
+                    node {
+                      id
+                      title
+                      quantity
+                      variant {
+                        id
+                        title
+                        price
+                        product {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        ''')
+        
+        # Execute the query
+        result = client.execute(query, variable_values={"first": 50})
+        
+        # Process the results to match the format expected by the view
+        shopify_orders = []
+        
+        for edge in result["orders"]["edges"]:
+            order_node = edge["node"]
+            
+            # Map displayFulfillmentStatus to the expected format
+            fulfillment_status = map_display_fulfillment_status(order_node.get("displayFulfillmentStatus", ""))
+            
+            # Create a compatible order object
+            order = type('ShopifyOrder', (), {
+                'id': order_node["id"].split("/")[-1],
+                'name': order_node["name"],
+                'created_at': order_node["createdAt"],
+                'fulfillment_status': fulfillment_status,
+                'total_price': float(order_node["totalPriceSet"]["shopMoney"]["amount"]),
+                'customer': type('Customer', (), {
+                    'first_name': order_node["customer"]["firstName"] if order_node["customer"] else "",
+                    'last_name': order_node["customer"]["lastName"] if order_node["customer"] else "",
+                    'email': order_node["customer"]["email"] if order_node["customer"] else ""
+                }),
+                'line_items': []
+            })
+            
+            # Process line items
+            for item_edge in order_node["lineItems"]["edges"]:
+                item_node = item_edge["node"]
+                
+                # Extract product ID and variant ID safely
+                product_id = None
+                variant_id = None
+                
+                if item_node.get("variant") and item_node["variant"].get("product"):
+                    product_id = item_node["variant"]["product"]["id"].split("/")[-1]
+                
+                if item_node.get("variant"):
+                    variant_id = item_node["variant"]["id"].split("/")[-1]
+                    variant_title = item_node["variant"]["title"]
+                    variant_price = float(item_node["variant"]["price"])
+                else:
+                    variant_title = ""
+                    variant_price = 0.0
+                
+                # Create a compatible line item object
+                line_item = type('LineItem', (), {
+                    'id': item_node["id"].split("/")[-1],
+                    'title': item_node["title"],
+                    'quantity': item_node["quantity"],
+                    'price': variant_price,
+                    'variant_title': variant_title,
+                    'product_id': product_id,
+                    'variant_id': variant_id
+                })
+                
+                # Add line item to order
+                order.line_items.append(line_item)
+            
+            # Add order to list
+            shopify_orders.append(order)
+        
+        return shopify_orders
+        
+    except Exception as e:
+        logger.error(f"Error syncing orders from Shopify via GraphQL: {str(e)}")
+        return []
+
+def map_display_fulfillment_status(display_status):
+    """
+    Map Shopify displayFulfillmentStatus to the format expected by the REST API
+    """
+    status_map = {
+        "FULFILLED": "fulfilled", 
+        "PARTIALLY_FULFILLED": "partial",
+        "UNFULFILLED": "null",
+        "NOT_DELIVERED": "null",
+        "PENDING_FULFILLMENT": "null",
+        "OPEN": "null",
+        "IN_PROGRESS": "null",
+        "ON_HOLD": "null",
+        "SCHEDULED": "null"
+    }
+    
+    return status_map.get(display_status, "null")

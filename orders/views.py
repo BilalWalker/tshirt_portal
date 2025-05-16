@@ -5,8 +5,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .models import Order, OrderItem
 from designs.models import Design
-from designs.shopify_integration import sync_orders_from_shopify
 from users.views import is_admin
+
+# Import both integration modules to give options
+from designs.shopify_integration import sync_orders_from_shopify as sync_orders_from_shopify_rest
+from designs.shopify_graphql import sync_orders_from_shopify as sync_orders_from_shopify_graphql
+
+# Use the REST API by default
+USE_GRAPHQL_API = True  # Set to True to use GraphQL API instead of REST
 
 class OrderListView(LoginRequiredMixin, ListView):
     model = Order
@@ -25,8 +31,12 @@ def sync_orders(request):
         messages.error(request, "You don't have permission to sync orders.")
         return redirect('order_list')
     
-    # Get orders from Shopify
-    shopify_orders = sync_orders_from_shopify()
+    # Get orders from Shopify using selected API
+    if USE_GRAPHQL_API:
+        shopify_orders = sync_orders_from_shopify_graphql()
+        print('------------------------',shopify_orders)
+    else:
+        shopify_orders = sync_orders_from_shopify_rest()
     
     sync_count = 0
     for shopify_order in shopify_orders:
