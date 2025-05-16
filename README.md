@@ -22,8 +22,8 @@ Do the steps in the order listed below
 
 4. Create a `.env` file in the project root with the following variables:
    ```
-   SECRET_KEY=your-secret-key
-   DEBUG=True
+   SECRET_KEY=your-secret-key (although not necessary in the beginning)
+   DEBUG=True (also not necessary, in the beginning)
    
    # Shopify API settings
    SHOPIFY_API_KEY=your-shopify-api-key
