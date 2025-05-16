@@ -69,7 +69,7 @@ def test_connection():
 
 def publish_product(design):
     """
-    Publish a design to Shopify as a product using GraphQL
+    Publish a design to Shopify as a product using GraphQL with a simpler approach
     Returns (success, product_id, product_url)
     """
     try:
@@ -81,8 +81,8 @@ def publish_product(design):
             logger.error("Could not get a location ID for inventory")
             return False, None, None
         
-        # Updated mutation format based on current Shopify GraphQL API schema
-        mutation = gql('''
+        # Create a basic product first without variants
+        create_product_mutation = gql('''
         mutation createProduct($input: ProductInput!) {
           productCreate(input: $input) {
             product {
@@ -98,50 +98,17 @@ def publish_product(design):
         }
         ''')
         
-        # Prepare the product input with correct format
+        # Simplified product input without options and variants
         product_input = {
             "title": design.title,
             "descriptionHtml": design.description or "",
             "productType": "T-Shirt",
             "vendor": "T-Shirt Design Portal",
-            "options": ["Size"],  # Simple string array
-            "variants": [
-                {
-                    "price": "24.99", 
-                    "options": ["S"], 
-                    "inventoryItem": {"tracked": True},
-                    "inventoryQuantities": [{"availableQuantity": 10, "locationId": location_id}]
-                },
-                {
-                    "price": "24.99", 
-                    "options": ["M"], 
-                    "inventoryItem": {"tracked": True},
-                    "inventoryQuantities": [{"availableQuantity": 10, "locationId": location_id}]
-                },
-                {
-                    "price": "24.99", 
-                    "options": ["L"], 
-                    "inventoryItem": {"tracked": True},
-                    "inventoryQuantities": [{"availableQuantity": 10, "locationId": location_id}]
-                },
-                {
-                    "price": "24.99", 
-                    "options": ["XL"], 
-                    "inventoryItem": {"tracked": True},
-                    "inventoryQuantities": [{"availableQuantity": 10, "locationId": location_id}]
-                },
-                {
-                    "price": "24.99", 
-                    "options": ["XXL"], 
-                    "inventoryItem": {"tracked": True},
-                    "inventoryQuantities": [{"availableQuantity": 10, "locationId": location_id}]
-                }
-            ],
             "status": "ACTIVE"
         }
         
-        # Execute the mutation
-        result = client.execute(mutation, variable_values={"input": product_input})
+        # Execute the mutation to create the base product
+        result = client.execute(create_product_mutation, variable_values={"input": product_input})
         
         # Check for errors
         if result["productCreate"]["userErrors"]:
@@ -149,7 +116,7 @@ def publish_product(design):
             logger.error(f"GraphQL product creation error: {errors}")
             return False, None, None
         
-        # Extract the product ID (removing the prefix)
+        # Extract the product ID
         product_gid = result["productCreate"]["product"]["id"]
         product_id = product_gid.split("/")[-1]
         
@@ -159,11 +126,67 @@ def publish_product(design):
         # Now add the image using a separate mutation
         add_image_to_product(client, product_gid, design.image.path)
         
+        # Then, add the variants one by one
+        sizes = ["S", "M", "L", "XL", "XXL"]
+        for size in sizes:
+            success = add_variant_to_product(client, product_gid, size, "24.99", location_id)
+            if not success:
+                logger.warning(f"Failed to add variant {size} to product {product_id}")
+        
         return True, product_id, product_url
         
     except Exception as e:
         logger.error(f"Error publishing product via GraphQL: {str(e)}")
         return False, None, None
+
+def add_variant_to_product(client, product_id, option_value, price, location_id):
+    """
+    Add a variant to an existing product
+    """
+    try:
+        # Create variant mutation
+        create_variant_mutation = gql('''
+        mutation createVariant($input: ProductVariantInput!) {
+          productVariantCreate(input: $input) {
+            productVariant {
+              id
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+        ''')
+        
+        # Variant input
+        variant_input = {
+            "productId": product_id,
+            "options": [option_value],
+            "price": price,
+            "inventoryItem": {
+                "tracked": True
+            },
+            "inventoryQuantities": {
+                "availableQuantity": 10,
+                "locationId": location_id
+            }
+        }
+        
+        # Execute the mutation
+        result = client.execute(create_variant_mutation, variable_values={"input": variant_input})
+        
+        # Check for errors
+        if result["productVariantCreate"]["userErrors"]:
+            errors = ", ".join([error["message"] for error in result["productVariantCreate"]["userErrors"]])
+            logger.error(f"GraphQL variant creation error: {errors}")
+            return False
+            
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error adding variant via GraphQL: {str(e)}")
+        return False
 
 def get_first_location_id(client):
     """
