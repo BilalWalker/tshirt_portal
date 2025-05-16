@@ -84,11 +84,41 @@ If you encounter issues with the Shopify integration:
 4. Look at the error logs for specific error messages
 5. Test the connection using the test_shopify_connection() function
 
-## Production Deployment
+### Admin Panel
+- Secure admin login
+- User management (add/manage team members)
+- Role-based access control
 
-For production deployment, consider using:
-- PostgreSQL instead of SQLite
-- Gunicorn as the WSGI server
-- Nginx as a reverse proxy
-- Django's collectstatic for static files
-- A proper media storage solution (e.g., AWS S3)
+### User Dashboard
+- T-shirt design creation and management
+- Save designs as drafts
+- Publish designs to Shopify as products
+- View saved/published designs
+
+### Shopify Integration
+- Automatic product creation in Shopify when designs are published
+- Design status tracking (Draft, Published)
+- Order synchronization from Shopify
+- Order management and tracking
+
+## Technology Stack
+
+- **Backend:** Python Django
+- **Frontend:** Bootstrap 5, Django templates
+- **Integration:** Shopify API
+
+## Project Structure
+
+The project is organized into the following main apps:
+
+1. **users**: Handles user authentication, permissions, and role management
+2. **designs**: Manages T-shirt designs, including creation, storage, and publishing to Shopify
+3. **orders**: Handles order synchronization and management from Shopify
+
+## Getting Started
+
+See the [Deployment Instructions](#deployment-instructions) section for setup instructions.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
