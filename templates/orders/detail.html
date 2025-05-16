@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.shopify_order_id }} - T-Shirt Design Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1>Order #{{ order.shopify_order_id }}</h1>
+        <p>
+            <span class="badge 
+                {% if order.status == 'PENDING' %}bg-warning
+                {% elif order.status == 'PROCESSING' %}bg-info
+                {% elif order.status == 'SHIPPED' %}bg-primary
+                {% elif order.status == 'DELIVERED' %}bg-success
+                {% elif order.status == 'CANCELLED' %}bg-danger
+                {% else %}bg-secondary{% endif %}">
+                {{ order.get_status_display }}
+            </span>
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Customer Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ order.customer_name }}</p>
+                <p><strong>Email:</strong> {{ order.customer_email }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Shopify Order ID:</strong> {{ order.shopify_order_id }}</p>
+                <p><strong>Total Price:</strong> ${{ order.total_price }}</p>
+                <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+                <p><strong>Last Updated:</strong> {{ order.updated_at|date:"F d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Order Items</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Size</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                        <tr>
+                            <td>
+                                {{ item.product_title }}
+                                {% if item.design %}
+                                    <br>
+                                    <a href="{% url 'design_detail' item.design.pk %}">View Design</a>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.size }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.price }}</td>
+                            <td>${{ item.price|floatformat:2 }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No items found for this order.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-end">Total:</th>
+                        <th>${{ order.total_price }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'order_list' %}" class="btn btn-secondary">Back to Orders</a>
+</div>
+{% endblock %}

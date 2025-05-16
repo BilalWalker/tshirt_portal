@@ -32,6 +32,7 @@ SHOPIFY_API_KEY = os.getenv('SHOPIFY_API_KEY')
 SHOPIFY_API_SECRET = os.getenv('SHOPIFY_API_SECRET')
 SHOPIFY_SHOP_NAME = os.getenv('SHOPIFY_SHOP_NAME')
 SHOPIFY_API_VERSION = os.getenv('SHOPIFY_API_VERSION')  # Use the latest stable version
+SHOPIFY_PASSWORD = os.getenv('ADMIN_API_ACCESS_TOKEN')
 print('setingssss', SHOPIFY_API_KEY, SHOPIFY_API_SECRET, SHOPIFY_SHOP_NAME, SHOPIFY_API_VERSION)
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -65,6 +66,7 @@ INSTALLED_APPS = [
     #Local apps
     'users.apps.UsersConfig',
     'designs.apps.DesignsConfig',
+    'orders.apps.OrdersConfig',
 ]
 
 MIDDLEWARE = [

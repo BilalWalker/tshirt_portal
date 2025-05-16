@@ -5,26 +5,53 @@ import os
 from PIL import Image
 import io
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 def initialize_shopify_session():
-
-    shop_url = f"https://{settings.SHOPIFY_API_KEY}:{settings.SHOPIFY_API_SECRET}@{settings.SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/{settings.SHOPIFY_API_VERSION}"
-    print(shop_url)
-    shopify.ShopifyResource.set_site(shop_url)
-    return True
+    try:
+        # Set up the API version and credentials
+        api_version = settings.SHOPIFY_API_VERSION
+        shop_name = settings.SHOPIFY_SHOP_NAME
+        api_key = settings.SHOPIFY_API_KEY
+        password = settings.SHOPIFY_PASSWORD  # This is the Admin API access token
+        
+        # Initialize the session directly using the private app credentials
+        session = shopify.Session(f"{shop_name}.myshopify.com", api_version, password)
+        shopify.ShopifyResource.activate_session(session)
+        
+        # Test the session
+        shop = shopify.Shop.current()
+        logger.info(f"Successfully connected to Shopify shop: {shop.name}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to initialize Shopify session: {str(e)}")
+        return False
 
 def image_to_base64(image_path):
     """Convert image to base64 string for Shopify API"""
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
+def test_shopify_connection():
+    try:
+        initialize_shopify_session()
+        shop = shopify.Shop.current()
+        return True, f"Connected to shop: {shop.name}"
+    except Exception as e:
+        return False, f"Error connecting to Shopify: {str(e)}"
+
 def publish_to_shopify(design):
     """
     Publish a design to Shopify as a product
     Returns (success, product_id, product_url)
     """
+    
+    test_shopify_connection()
     try:
         initialize_shopify_session()
+        print('hellllllllllo')
         
         # Create new product
         new_product = shopify.Product()
@@ -32,6 +59,7 @@ def publish_to_shopify(design):
         new_product.body_html = design.description
         new_product.product_type = "T-Shirt"
         new_product.vendor = "T-Shirt Design Portal"
+        print('new_product',new_product)
         
         # Add variants for different sizes
         sizes = ["S", "M", "L", "XL", "XXL"]
@@ -58,11 +86,13 @@ def publish_to_shopify(design):
             image_path = design.image.path
             image = shopify.Image()
             image.product_id = new_product.id
+            print('new_product.id', new_product.id)
             image.attachment = image_to_base64(image_path)
             image.save()
             
             # Get the product URL
-            product_url = f"https://{settings.SHOPIFY_SHOP_NAME}.myshopify.com/admin/products/{new_product.id}"
+            # product_url = f"https://{settings.SHOPIFY_SHOP_NAME}.myshopify.com/admin/products/{new_product.id}"
+            product_url = f'https://wreck-tshirt.myshopify.com/admin/products/{new_product.id}'
             
             return True, str(new_product.id), product_url
         else:

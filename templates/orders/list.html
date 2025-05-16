@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Orders - T-Shirt Design Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Orders</h1>
+    {% if user.is_admin %}
+        <a href="{% url 'sync_orders' %}" class="btn btn-primary">Sync Orders from Shopify</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.shopify_order_id }}</td>
+                            <td>{{ order.customer_name }}</td>
+                            <td>{{ order.created_at|date:"M d, Y" }}</td>
+                            <td>${{ order.total_price }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if order.status == 'PENDING' %}bg-warning
+                                    {% elif order.status == 'PROCESSING' %}bg-info
+                                    {% elif order.status == 'SHIPPED' %}bg-primary
+                                    {% elif order.status == 'DELIVERED' %}bg-success
+                                    {% elif order.status == 'CANCELLED' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'order_detail' order.pk %}" class="btn btn-sm btn-primary">View Details</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No orders found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
