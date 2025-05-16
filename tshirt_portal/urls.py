@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from django.views.generic import RedirectView
+from django.urls import reverse_lazy
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
@@ -27,7 +29,8 @@ urlpatterns = [
     path('designs/', include('designs.urls')),
     path('orders/', include('orders.urls')),
     path('users/', include('users.urls')),
-    path('accounts/profile/', TemplateView.as_view(template_name='account/profile.html'), name='account_profile'),
+    path('accounts/profile/', RedirectView.as_view(url=reverse_lazy('home'), permanent=False), name='account_profile'),
+
 ]
 
 # if settings.DEBUG:
